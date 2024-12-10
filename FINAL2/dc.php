@@ -138,9 +138,9 @@
                 <table id="table_id" class="display">
                     <thead>
                         <tr>
-                            <th>Id</th>
-                            <th>ID-compra</th>
-                            <th>ID-producto</th>
+                            <!-- <th>Id</th>
+                            <th>ID-compra</th> -->
+                            <th>Producto</th>
                             <th>cantidad</th>
                             <th>precio</th>
                             <th>Operación</th>
@@ -149,8 +149,8 @@
                     <tbody>
                         <?php for($i = 0; $i < count($datos); $i++): ?>
                             <tr>
-                                <td><?php echo $datos[$i][0]; ?></td>
-                                <td><?php echo $datos[$i][1]; ?></td>
+                                <!-- <td><?php echo $datos[$i][0]; ?></td>
+                                <td><?php echo $datos[$i][1]; ?></td> -->
                                 <td><?php echo $datos[$i][2]; ?></td>
                                 <td><?php echo $datos[$i][3]; ?></td>
                                 <td><?php echo $datos[$i][4]; ?></td>

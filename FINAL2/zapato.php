@@ -1,22 +1,43 @@
 <?php
 if (isset($_POST["nombre"])) {
+    // Conexión a la base de datos
     $cnx = mysqli_connect("localhost", "root", "usbw", "zapateria2")
         or die("Error en la Conexión a MySQL");
 
-    // Asegúrate de que todos los campos estén siendo procesados
-    
+    // Obtener los datos enviados por el formulario
     $nombre = $_POST["nombre"];
     $stock = $_POST["stock"];
     $precio = $_POST["precio"];
     $id_proveedor = $_POST["id_proveedor"];
 
-    $query = "INSERT INTO productos ( nombre, stock, precio, id_proveedor) VALUES ('$nombre', '$stock', '$precio', '$id_proveedor')";
+    // Validaciones del lado del servidor
+    if (!preg_match("/^[a-zA-Z\s]+$/", $nombre)) {
+        die("El campo 'Nombre' solo puede contener letras.");
+    }
+    if (!preg_match("/^[0-9]+$/", $stock)) {
+        die("El campo 'Stock' solo puede contener números.");
+    }
+    if (!preg_match("/^[0-9]+$/", $precio)) {
+        die("El campo 'Precio' solo puede contener números.");
+    }
+    if (!preg_match("/^[a-zA-Z0-9]+$/", $id_proveedor)) {
+        die("El campo 'ID_PROVEEDOR' solo puede contener letras y números, sin símbolos.");
+    }
 
-    mysqli_query($cnx, $query);
+    // Insertar en la base de datos
+    $query = "INSERT INTO productos (nombre, stock, precio, id_proveedor) VALUES (?, ?, ?, ?)";
+    $stmt = mysqli_prepare($cnx, $query);
+    mysqli_stmt_bind_param($stmt, "siis", $nombre, $stock, $precio, $id_proveedor);
+
+    if (mysqli_stmt_execute($stmt)) {
+        echo "Producto insertado<br>";
+        echo "<a href='catalogo.php'>Regresar</a>";
+    } else {
+        echo "Error al insertar el producto: " . mysqli_error($cnx);
+    }
+
+    mysqli_stmt_close($stmt);
     mysqli_close($cnx);
-
-    echo "Producto insertado<br>";
-    echo "<a href='catalogo.php'> Regresar </a>";
 }
 ?>
 
@@ -31,17 +52,17 @@ if (isset($_POST["nombre"])) {
           rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <style>
         body {
-            background-color: #f3f3f3; /* Fondo claro */
+            background-color: #f3f3f3;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .container {
-            max-width: 600px; /* Ancho máximo del formulario */
-            margin: 30px auto; /* Centrar el formulario */
+            max-width: 600px;
+            margin: 30px auto;
             padding: 20px;
-            background-color: white; /* Fondo blanco para el formulario */
-            border-radius: 10px; /* Bordes redondeados */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .logo {
@@ -51,6 +72,45 @@ if (isset($_POST["nombre"])) {
             height: auto;
         }
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelector("form").addEventListener("submit", function (event) {
+                const nombre = document.querySelector("input[name='nombre']").value;
+                const stock = document.querySelector("input[name='stock']").value;
+                const precio = document.querySelector("input[name='precio']").value;
+                const idProveedor = document.querySelector("input[name='id_proveedor']").value;
+
+                // Validación para 'Nombre' (solo letras)
+                const nombreRegex = /^[a-zA-Z\s]+$/;
+                if (!nombreRegex.test(nombre)) {
+                    alert("El campo 'Nombre' solo puede contener letras.");
+                    event.preventDefault();
+                    return;
+                }
+
+                // Validación para 'Stock' y 'Precio' (solo números)
+                const numeroRegex = /^[0-9]+$/;
+                if (!numeroRegex.test(stock)) {
+                    alert("El campo 'Stock' solo puede contener números.");
+                    event.preventDefault();
+                    return;
+                }
+                if (!numeroRegex.test(precio)) {
+                    alert("El campo 'Precio' solo puede contener números.");
+                    event.preventDefault();
+                    return;
+                }
+
+                // Validación para 'ID_PROVEEDOR' (letras y números, sin símbolos)
+                const idProveedorRegex = /^[a-zA-Z0-9]+$/;
+                if (!idProveedorRegex.test(idProveedor)) {
+                    alert("El campo 'ID_PROVEEDOR' solo puede contener letras y números, sin símbolos.");
+                    event.preventDefault();
+                    return;
+                }
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -65,31 +125,19 @@ if (isset($_POST["nombre"])) {
     <form method="POST" class="row g-3 needs-validation" novalidate>
         <div class="col-md-12">
             <label for="validationCustom01" class="form-label">Nombre</label>
-            <input name="nombre" type="text" class="form-control" id="validationCustom01" aria-describedby="inputGroupPrepend" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
+            <input name="nombre" type="text" class="form-control" id="validationCustom01" required>
         </div>
         <div class="col-md-12">
             <label for="validationCustom02" class="form-label">Stock</label>
             <input name="stock" type="number" class="form-control" id="validationCustom02" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-md-12">
             <label for="validationCustom03" class="form-label">Precio</label>
-            <input name="precio" type="text" class="form-control" id="validationCustom03" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
+            <input name="precio" type="number" class="form-control" id="validationCustom03" required>
         </div>
         <div class="col-md-12">
             <label for="validationCustom04" class="form-label">ID_PROVEEDOR</label>
             <input name="id_proveedor" type="text" class="form-control" id="validationCustom04" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-12">
             <button class="btn btn-primary" type="submit">Enviar</button>

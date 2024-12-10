@@ -95,7 +95,7 @@
                 <table id="table_id" class="display">
                     <thead>
                         <tr>
-                            <th>Id</th>
+                            <!-- <th>Id</th> -->
                             <th>Nombre</th>
                             <th>Teléfono</th>
                             <th>Dirección</th>
@@ -105,7 +105,7 @@
                     <tbody>
                         <?php for($i = 0; $i < count($datos); $i++): ?>
                             <tr>
-                                <td><?php echo $datos[$i][0]; ?></td>
+                                <!-- <td><?php echo $datos[$i][0]; ?></td> -->
                                 <td><?php echo $datos[$i][1]; ?></td>
                                 <td><?php echo $datos[$i][2]; ?></td>
                                 <td><?php echo $datos[$i][3]; ?></td>

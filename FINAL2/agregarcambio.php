@@ -1,19 +1,40 @@
 <?php
 if (isset($_POST["cantidad"])) {
+    // Conexión a la base de datos
     $cnx = mysqli_connect("localhost", "root", "usbw", "zapateria2")
         or die("Error en la Conexión a MySQL");
 
+    // Obtener los datos enviados por el formulario
     $id_venta = $_POST["id_venta"];
     $id_producto = $_POST["id_producto"];
     $fecha = $_POST["fecha"];
     $cantidad = $_POST["cantidad"];
 
-    $query = "INSERT INTO cambios (id_venta,id_producto,fecha,cantidad) VALUES ('$id_venta',$id_producto,$fecha,$cantidad)";
-    mysqli_query($cnx, $query);
-    mysqli_close($cnx);
+    // Validaciones del lado del servidor
+    if (!preg_match("/^[a-zA-Z0-9]+$/", $id_venta)) {
+        die("El campo 'ID_VENTA' solo puede contener letras y números.");
+    }
+    if (!preg_match("/^[a-zA-Z0-9]+$/", $id_producto)) {
+        die("El campo 'ID_PRODUCTO' solo puede contener letras y números.");
+    }
+    if (!preg_match("/^[0-9.,]+$/", $cantidad)) {
+        die("El campo 'CANTIDAD' solo puede contener números, comas y puntos.");
+    }
 
-    echo "Cambio insertado <br>";
-    echo "<a href='cambios.php'> Regresar </a>";
+    // Insertar en la base de datos
+    $query = "INSERT INTO cambios (id_venta, id_producto, fecha, cantidad) VALUES (?, ?, ?, ?)";
+    $stmt = mysqli_prepare($cnx, $query);
+    mysqli_stmt_bind_param($stmt, "ssss", $id_venta, $id_producto, $fecha, $cantidad);
+
+    if (mysqli_stmt_execute($stmt)) {
+        echo "Cambio insertado <br>";
+        echo "<a href='cambios.php'>Regresar</a>";
+    } else {
+        echo "Error al insertar el cambio: " . mysqli_error($cnx);
+    }
+
+    mysqli_stmt_close($stmt);
+    mysqli_close($cnx);
 }
 ?>
 
@@ -28,17 +49,17 @@ if (isset($_POST["cantidad"])) {
           rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <style>
         body {
-            background-color: #f3f3f3; /* Fondo claro */
+            background-color: #f3f3f3;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .container {
-            max-width: 600px; /* Ancho máximo del formulario */
-            margin: 30px auto; /* Centrar el formulario */
+            max-width: 600px;
+            margin: 30px auto;
             padding: 20px;
-            background-color: white; /* Fondo blanco para el formulario */
-            border-radius: 10px; /* Bordes redondeados */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .logo {
@@ -48,6 +69,36 @@ if (isset($_POST["cantidad"])) {
             height: auto;
         }
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelector("form").addEventListener("submit", function (event) {
+                const idVenta = document.querySelector("input[name='id_venta']").value;
+                const idProducto = document.querySelector("input[name='id_producto']").value;
+                const cantidad = document.querySelector("input[name='cantidad']").value;
+
+                // Validación para 'ID_VENTA' e 'ID_PRODUCTO' (solo letras y números)
+                const idRegex = /^[a-zA-Z0-9]+$/;
+                if (!idRegex.test(idVenta)) {
+                    alert("El campo 'ID_VENTA' solo puede contener letras y números.");
+                    event.preventDefault();
+                    return;
+                }
+                if (!idRegex.test(idProducto)) {
+                    alert("El campo 'ID_PRODUCTO' solo puede contener letras y números.");
+                    event.preventDefault();
+                    return;
+                }
+
+                // Validación para 'CANTIDAD' (solo números, comas y puntos)
+                const cantidadRegex = /^[0-9.,]+$/;
+                if (!cantidadRegex.test(cantidad)) {
+                    alert("El campo 'CANTIDAD' solo puede contener números, comas y puntos.");
+                    event.preventDefault();
+                    return;
+                }
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -62,30 +113,18 @@ if (isset($_POST["cantidad"])) {
         <div class="col-md-12">
             <label for="id_venta" class="form-label">ID_VENTA</label>
             <input name="id_venta" type="text" class="form-control" id="id_venta" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-md-12">
             <label for="id_producto" class="form-label">ID_PRODUCTO</label>
             <input name="id_producto" type="text" class="form-control" id="id_producto" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-md-12">
             <label for="fecha" class="form-label">FECHA</label>
             <input name="fecha" type="date" class="form-control" id="fecha" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-md-12">
             <label for="cantidad" class="form-label">CANTIDAD</label>
             <input name="cantidad" type="text" class="form-control" id="cantidad" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-12">
             <button class="btn btn-primary" type="submit">Enviar</button>
@@ -98,3 +137,4 @@ if (isset($_POST["cantidad"])) {
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body>
 </html>
+

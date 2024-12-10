@@ -83,8 +83,8 @@
                 <table id="table_id" class="display">
                     <thead>
                         <tr>
-                            <th><p style="color: purple;">Id-venta</p></th>
-                            <th><p style="color: purple;">Id-cliente</p></th>
+                            <!-- <th><p style="color: purple;">Id-venta</p></th>
+                            <th><p style="color: purple;">Id-cliente</p></th> -->
                             <th><p style="color: purple;">Fecha</p></th>
                             <th><p style="color: purple;">Total</p></th>
                             <th><p style="color: purple;">Acciones</p></th>
@@ -93,8 +93,8 @@
                     <tbody>
                         <?php for ($i = 0; $i < count($datos); $i++): ?>
                             <tr>
-                                <td><?php echo $datos[$i][0]; ?></td>
-                                <td><?php echo $datos[$i][1]; ?></td>
+                                <!-- <td><?php echo $datos[$i][0]; ?></td>
+                                <td><?php echo $datos[$i][1]; ?></td> -->
                                 <td><?php echo $datos[$i][2]; ?></td>
                                 <td><?php echo $datos[$i][3]; ?></td>
                                 <td>

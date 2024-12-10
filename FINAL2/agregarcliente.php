@@ -1,18 +1,36 @@
 <?php
 if (isset($_POST["nombre"])) {
+    // Conexión a la base de datos
     $cnx = mysqli_connect("localhost", "root", "usbw", "zapateria2")
         or die("Error en la Conexión a MySQL");
 
+    // Obtener los datos enviados por el formulario
     $nombre = $_POST["nombre"];
     $telefono = $_POST["telefono"];
     $direccion = $_POST["direccion"];
 
-    $query = "INSERT INTO clientes (nombre, telefono, direccion) VALUES ('$nombre', '$telefono', '$direccion')";
-    mysqli_query($cnx, $query);
-    mysqli_close($cnx);
+    // Validaciones del lado del servidor
+    if (!preg_match("/^[a-zA-Z\s]+$/", $nombre)) {
+        die("El campo 'Nombre' solo puede contener letras.");
+    }
+    if (!preg_match("/^[0-9]+$/", $telefono)) {
+        die("El campo 'Teléfono' solo puede contener números.");
+    }
 
-    echo "Cliente insertado <br>";
-    echo "<a href='clientes.php'> Regresar </a>";
+    // Insertar en la base de datos
+    $query = "INSERT INTO clientes (nombre, telefono, direccion) VALUES (?, ?, ?)";
+    $stmt = mysqli_prepare($cnx, $query);
+    mysqli_stmt_bind_param($stmt, "sss", $nombre, $telefono, $direccion);
+
+    if (mysqli_stmt_execute($stmt)) {
+        echo "Cliente insertado <br>";
+        echo "<a href='clientes.php'>Regresar</a>";
+    } else {
+        echo "Error al insertar el cliente: " . mysqli_error($cnx);
+    }
+
+    mysqli_stmt_close($stmt);
+    mysqli_close($cnx);
 }
 ?>
 
@@ -27,17 +45,17 @@ if (isset($_POST["nombre"])) {
           rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <style>
         body {
-            background-color: #f3f3f3; /* Fondo claro */
+            background-color: #f3f3f3;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .container {
-            max-width: 600px; /* Ancho máximo del formulario */
-            margin: 30px auto; /* Centrar el formulario */
+            max-width: 600px;
+            margin: 30px auto;
             padding: 20px;
-            background-color: white; /* Fondo blanco para el formulario */
-            border-radius: 10px; /* Bordes redondeados */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .logo {
@@ -47,6 +65,30 @@ if (isset($_POST["nombre"])) {
             height: auto;
         }
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelector("form").addEventListener("submit", function (event) {
+                const nombre = document.querySelector("input[name='nombre']").value;
+                const telefono = document.querySelector("input[name='telefono']").value;
+
+                // Validación para 'Nombre' (solo letras)
+                const nombreRegex = /^[a-zA-Z\s]+$/;
+                if (!nombreRegex.test(nombre)) {
+                    alert("El campo 'Nombre' solo puede contener letras.");
+                    event.preventDefault();
+                    return;
+                }
+
+                // Validación para 'Teléfono' (solo números)
+                const telefonoRegex = /^[0-9]+$/;
+                if (!telefonoRegex.test(telefono)) {
+                    alert("El campo 'Teléfono' solo puede contener números.");
+                    event.preventDefault();
+                    return;
+                }
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -61,23 +103,14 @@ if (isset($_POST["nombre"])) {
         <div class="col-md-6">
             <label for="nombre" class="form-label">Nombre</label>
             <input name="nombre" type="text" class="form-control" id="nombre" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-md-6">
             <label for="telefono" class="form-label">Teléfono</label>
             <input name="telefono" type="text" class="form-control" id="telefono" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-md-6">
             <label for="direccion" class="form-label">Dirección</label>
             <input name="direccion" type="text" class="form-control" id="direccion" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-12">
             <button class="btn btn-primary" type="submit">Enviar</button>

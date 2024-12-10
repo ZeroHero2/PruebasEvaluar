@@ -1,12 +1,20 @@
 <?php
-if (isset($_POST["total"])) { 
+if (isset($_POST["total"])) {
+    // Conexión a la base de datos
     $cnx = mysqli_connect("localhost", "root", "usbw", "zapateria2")
         or die("Error en la Conexión a MySQL");
 
+    // Obtener los datos enviados por el formulario
     $id_proveedor = $_POST["id_proveedor"];
     $fecha = $_POST["fecha"];
     $total = $_POST["total"];
 
+    // Validación del lado del servidor para el campo 'total'
+    if (!preg_match("/^[0-9.,]+$/", $total)) {
+        die("El campo 'TOTAL' solo puede contener números, comas y puntos.");
+    }
+
+    // Insertar en la base de datos
     $query = "INSERT INTO compras (id_proveedor, fecha, total) VALUES ('$id_proveedor', '$fecha', '$total')";
     mysqli_query($cnx, $query);
     mysqli_close($cnx);
@@ -27,17 +35,17 @@ if (isset($_POST["total"])) {
           rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <style>
         body {
-            background-color: #f3f3f3; /* Fondo claro */
+            background-color: #f3f3f3;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .container {
-            max-width: 600px; /* Ancho máximo del formulario */
-            margin: 30px auto; /* Centrar el formulario */
+            max-width: 600px;
+            margin: 30px auto;
             padding: 20px;
-            background-color: white; /* Fondo blanco para el formulario */
-            border-radius: 10px; /* Bordes redondeados */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .logo {
@@ -47,6 +55,20 @@ if (isset($_POST["total"])) {
             height: auto;
         }
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelector("form").addEventListener("submit", function (event) {
+                const total = document.querySelector("input[name='total']").value;
+
+                // Validación para 'TOTAL' (solo números, comas y puntos)
+                const totalRegex = /^[0-9.,]+$/;
+                if (!totalRegex.test(total)) {
+                    alert("El campo 'TOTAL' solo puede contener números, comas y puntos.");
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -58,26 +80,17 @@ if (isset($_POST["total"])) {
 
 <div class="container">
     <form method="POST" class="row g-3 needs-validation" novalidate>
-    <div class="col-md-4">
-            <label for="id_proveedor" class="form-label">ID-PROVEDOR</label>
+        <div class="col-md-4">
+            <label for="id_proveedor" class="form-label">ID-PROVEEDOR</label>
             <input name="id_proveedor" type="text" class="form-control" id="id_proveedor" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-md-4">
             <label for="fecha" class="form-label">Fecha</label>
             <input name="fecha" type="date" class="form-control" id="fecha" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-md-4">
             <label for="total" class="form-label">TOTAL</label>
             <input name="total" type="text" class="form-control" id="total" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-12">
             <button class="btn btn-primary" type="submit">Enviar</button>
@@ -90,4 +103,5 @@ if (isset($_POST["total"])) {
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body>
 </html>
+
 

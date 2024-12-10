@@ -1,20 +1,37 @@
 <?php
 if (isset($_POST["id_venta"])) {
+    // Conexión a la base de datos
     $cnx = mysqli_connect("localhost", "root", "usbw", "zapateria2")
         or die("Error en la Conexión a MySQL");
 
-    // Asegúrate de que todos los campos estén siendo procesados
+    // Obtener los datos enviados por el formulario
     $id_venta = $_POST["id_venta"];
     $id_producto = $_POST["id_producto"];
     $cantidad = $_POST["cantidad"];
     $precio = $_POST["precio"];
 
-    $query = "INSERT INTO detalle_ventas (id_venta, id_producto, cantidad, precio) VALUES ('$id_venta', '$id_producto', '$cantidad', '$precio')";
-    mysqli_query($cnx, $query);
-    mysqli_close($cnx);
+    // Validaciones del lado del servidor
+    if (!preg_match("/^[0-9]+$/", $cantidad)) {
+        die("El campo 'Cantidad' solo puede contener números.");
+    }
+    if (!preg_match("/^[0-9.,]+$/", $precio)) {
+        die("El campo 'Precio' solo puede contener números, comas y puntos.");
+    }
 
-    echo "detalle insertado <br>";
-    echo "<a href='dv.php'> Regresar </a>";
+    // Insertar en la base de datos
+    $query = "INSERT INTO detalle_ventas (id_venta, id_producto, cantidad, precio) VALUES (?, ?, ?, ?)";
+    $stmt = mysqli_prepare($cnx, $query);
+    mysqli_stmt_bind_param($stmt, "ssis", $id_venta, $id_producto, $cantidad, $precio);
+
+    if (mysqli_stmt_execute($stmt)) {
+        echo "Detalle insertado <br>";
+        echo "<a href='dv.php'>Regresar</a>";
+    } else {
+        echo "Error al insertar el detalle: " . mysqli_error($cnx);
+    }
+
+    mysqli_stmt_close($stmt);
+    mysqli_close($cnx);
 }
 ?>
 
@@ -29,17 +46,17 @@ if (isset($_POST["id_venta"])) {
           rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
     <style>
         body {
-            background-color: #f3f3f3; /* Fondo claro */
+            background-color: #f3f3f3;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .container {
-            max-width: 600px; /* Ancho máximo del formulario */
-            margin: 30px auto; /* Centrar el formulario */
+            max-width: 600px;
+            margin: 30px auto;
             padding: 20px;
-            background-color: white; /* Fondo blanco para el formulario */
-            border-radius: 10px; /* Bordes redondeados */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .logo {
@@ -49,6 +66,30 @@ if (isset($_POST["id_venta"])) {
             height: auto;
         }
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelector("form").addEventListener("submit", function (event) {
+                const cantidad = document.querySelector("input[name='cantidad']").value;
+                const precio = document.querySelector("input[name='precio']").value;
+
+                // Validación para 'Cantidad' (solo números)
+                const cantidadRegex = /^[0-9]+$/;
+                if (!cantidadRegex.test(cantidad)) {
+                    alert("El campo 'Cantidad' solo puede contener números.");
+                    event.preventDefault();
+                    return;
+                }
+
+                // Validación para 'Precio' (solo números, comas y puntos)
+                const precioRegex = /^[0-9.,]+$/;
+                if (!precioRegex.test(precio)) {
+                    alert("El campo 'Precio' solo puede contener números, comas y puntos.");
+                    event.preventDefault();
+                    return;
+                }
+            });
+        });
+    </script>
 </head>
 <body>
 
@@ -63,30 +104,18 @@ if (isset($_POST["id_venta"])) {
         <div class="col-md-6">
             <label for="id_venta" class="form-label">id_venta</label>
             <input name="id_venta" type="text" class="form-control" id="id_venta" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-md-6">
             <label for="id_producto" class="form-label">id_producto</label>
             <input name="id_producto" type="text" class="form-control" id="id_producto" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-md-6">
             <label for="cantidad" class="form-label">cantidad</label>
             <input name="cantidad" type="text" class="form-control" id="cantidad" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-md-6">
             <label for="precio" class="form-label">precio</label>
             <input name="precio" type="text" class="form-control" id="precio" required>
-            <div class="valid-feedback">
-                Looks good!
-            </div>
         </div>
         <div class="col-12">
             <button class="btn btn-primary" type="submit">Enviar</button>
@@ -99,3 +128,4 @@ if (isset($_POST["id_venta"])) {
         integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
 </body>
 </html>
+

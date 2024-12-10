@@ -3,7 +3,7 @@
 
 $servername = "localhost"; // 
 $username = "root"; // 
-$password = "usbw"; // 
+$password = ""; // 
 $database = "zapateria2"; // 
 
 // Crear conexión

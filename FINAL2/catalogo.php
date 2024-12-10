@@ -92,22 +92,22 @@
                 <table id="table_id" class="display">
                     <thead>
                         <tr>
-                            <th>Id</th>
+                            <!-- <th>Id</th> -->
                             <th>Nombre</th>
                             <th>Stock</th>
                             <th>Precio</th>
-                            <th>ID_PROVEEDOR</th>
+                            <!-- <th>ID_PROVEEDOR</th> -->
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php for ($i = 0; $i < count($datos); $i++): ?>
                             <tr>
-                                <td><?php echo $datos[$i][0]; ?></td>
+                                <!-- <td><?php echo $datos[$i][0]; ?></td> -->
                                 <td><?php echo $datos[$i][1]; ?></td>
                                 <td><?php echo $datos[$i][2]; ?></td>
                                 <td><?php echo $datos[$i][3]; ?></td>
-                                <td><?php echo $datos[$i][4]; ?></td>
+                                <!-- <td><?php echo $datos[$i][4]; ?></td> -->
                                 <td>
                                     <a class="btn btn-primary" href="editar.php?id=<?php echo $datos[$i][0]; ?>" role="button">Editar</a>
                                     <a class="btn btn-danger" href="eliminar.php?id=<?php echo $datos[$i][0]; ?>" role="button">Eliminar</a>
